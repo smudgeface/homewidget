@@ -1,0 +1,65 @@
+name: HomeWidget
+options:
+  bundleIdPrefix: com.smudgeface
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""          # set in Xcode (Signing & Capabilities) or here
+    SUPPORTS_MACCATALYST: YES
+    SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+    DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
+    TARGETED_DEVICE_FAMILY: "2,6"  # 6 = native Mac idiom
+targets:
+  HomeWidget:
+    type: application
+    platform: iOS
+    sources: [App, Shared]
+    dependencies:
+      - target: HomeWidgetExtension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.smudgeface.homewidget
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: HomeWidget
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.utilities
+        NSHomeKitUsageDescription: HomeWidget reads snapshots from your HomeKit cameras to show them in desktop widgets.
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+    entitlements:
+      path: App/HomeWidget.entitlements
+      properties:
+        com.apple.developer.homekit: true
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+        com.apple.security.application-groups: [group.com.smudgeface.homewidget]
+  HomeWidgetExtension:
+    type: app-extension
+    platform: iOS
+    sources: [Widget, Shared]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.smudgeface.homewidget.widget
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: HomeWidget
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: Widget/HomeWidgetExtension.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.application-groups: [group.com.smudgeface.homewidget]
