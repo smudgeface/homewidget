@@ -2,37 +2,6 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
-// MARK: Configuration ("Edit Widget" → choose a camera)
-
-struct CameraEntity: AppEntity {
-    let id: String
-    let name: String
-
-    static var typeDisplayRepresentation: TypeDisplayRepresentation = "Camera"
-    static var defaultQuery = CameraQuery()
-    var displayRepresentation: DisplayRepresentation { DisplayRepresentation(title: "\(name)") }
-}
-
-struct CameraQuery: EntityQuery {
-    func entities(for identifiers: [String]) async throws -> [CameraEntity] {
-        all().filter { identifiers.contains($0.id) }
-    }
-    func suggestedEntities() async throws -> [CameraEntity] { all() }
-    func defaultResult() async -> CameraEntity? { all().first }
-
-    private func all() -> [CameraEntity] {
-        Shared.loadCameras().map { CameraEntity(id: $0.id, name: $0.room.isEmpty ? $0.name : "\($0.name) (\($0.room))") }
-    }
-}
-
-struct SelectCameraIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource = "Select Camera"
-    static var description = IntentDescription("Choose which HomeKit camera this widget shows.")
-
-    @Parameter(title: "Camera")
-    var camera: CameraEntity?
-}
-
 // MARK: Timeline
 
 struct CameraEntry: TimelineEntry {
@@ -54,10 +23,11 @@ struct CameraProvider: AppIntentTimelineProvider {
     func timeline(for configuration: SelectCameraIntent, in context: Context) async -> Timeline<CameraEntry> {
         // The app also triggers a reload whenever it writes a new snapshot;
         // this is just a fallback poll.
-        Timeline(entries: [entry(for: configuration)], policy: .after(.now.addingTimeInterval(60)))
+        Timeline(entries: [entry(for: configuration)], policy: .after(.now.addingTimeInterval(configuration.interval.seconds)))
     }
 
     private func entry(for configuration: SelectCameraIntent) -> CameraEntry {
+        log.notice("widget entry: camera=\(configuration.camera?.name ?? "none", privacy: .public) image=\(configuration.camera.flatMap { Shared.snapshotURL(for: $0.id) }.flatMap { UIImage(contentsOfFile: $0.path) } != nil)")
         guard let camera = configuration.camera, let url = Shared.snapshotURL(for: camera.id) else {
             return CameraEntry(date: .now, name: nil, image: nil, taken: nil)
         }
@@ -73,7 +43,16 @@ struct CameraWidgetView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            if entry.image == nil {
+            if let image = entry.image {
+                // In the content, not the container background: macOS strips the
+                // background when desktop widgets are dimmed behind other windows.
+                Color.clear.overlay {
+                    Image(uiImage: image).resizable()
+                        .widgetAccentedRenderingMode(.fullColor)
+                        .scaledToFill()
+                }
+                .clipped()
+            } else {
                 VStack(spacing: 6) {
                     Image(systemName: "video.slash").font(.title2)
                     Text(entry.name == nil ? "Edit widget to choose a camera"
@@ -92,15 +71,10 @@ struct CameraWidgetView: View {
                 .foregroundStyle(.white)
                 .padding(.horizontal, 6).padding(.vertical, 3)
                 .background(.black.opacity(0.45), in: Capsule())
+                .padding(8)
             }
         }
-        .containerBackground(for: .widget) {
-            if let image = entry.image {
-                Image(uiImage: image).resizable().scaledToFill()
-            } else {
-                Color(.secondarySystemBackground)
-            }
-        }
+        .containerBackground(for: .widget) { Color.black }
     }
 }
 
@@ -113,6 +87,8 @@ struct CameraWidget: Widget {
         }
         .configurationDisplayName("HomeKit Camera")
         .description("Shows a regularly refreshed snapshot from one HomeKit camera.")
+        .contentMarginsDisabled()
+        .containerBackgroundRemovable(false)
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge, .systemExtraLarge])
     }
 }

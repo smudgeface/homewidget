@@ -1,9 +1,14 @@
 import Foundation
+import os
+
+let log = Logger(subsystem: "com.smudgeface.homewidget", category: "general")
 
 /// Data shared between the app (which talks to HomeKit) and the widget
 /// (which can only read files), via the App Group container.
 enum Shared {
-    static let appGroup = "group.com.smudgeface.homewidget"
+    /// Team-prefixed (Mac-style) group ID, injected at build time from the signing team.
+    /// iOS-style "group." IDs are not readable from the widget's sandbox on macOS.
+    static let appGroup = Bundle.main.object(forInfoDictionaryKey: "AppGroupID") as? String ?? ""
     static let widgetKind = "CameraWidget"
 
     static var container: URL? {

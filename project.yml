@@ -2,15 +2,17 @@ name: HomeWidget
 options:
   bundleIdPrefix: com.smudgeface
   deploymentTarget:
-    iOS: "17.0"
+    iOS: "18.2"
   createIntermediateGroups: true
+configFiles:
+  Debug: Local.xcconfig     # holds DEVELOPMENT_TEAM; not committed
+  Release: Local.xcconfig
 settings:
   base:
     SWIFT_VERSION: "5.0"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
     CODE_SIGN_STYLE: Automatic
-    DEVELOPMENT_TEAM: ""          # set in Xcode (Signing & Capabilities) or here
     SUPPORTS_MACCATALYST: YES
     SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
     DERIVE_MACCATALYST_PRODUCT_BUNDLE_IDENTIFIER: NO
@@ -31,6 +33,7 @@ targets:
         CFBundleDisplayName: HomeWidget
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        AppGroupID: $(TeamIdentifierPrefix)com.smudgeface.homewidget
         LSApplicationCategoryType: public.app-category.utilities
         NSHomeKitUsageDescription: HomeWidget reads snapshots from your HomeKit cameras to show them in desktop widgets.
         UILaunchScreen: {}
@@ -42,7 +45,7 @@ targets:
         com.apple.developer.homekit: true
         com.apple.security.app-sandbox: true
         com.apple.security.network.client: true
-        com.apple.security.application-groups: [group.com.smudgeface.homewidget]
+        com.apple.security.application-groups: [$(TeamIdentifierPrefix)com.smudgeface.homewidget]
   HomeWidgetExtension:
     type: app-extension
     platform: iOS
@@ -56,10 +59,11 @@ targets:
         CFBundleDisplayName: HomeWidget
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        AppGroupID: $(TeamIdentifierPrefix)com.smudgeface.homewidget
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:
       path: Widget/HomeWidgetExtension.entitlements
       properties:
         com.apple.security.app-sandbox: true
-        com.apple.security.application-groups: [group.com.smudgeface.homewidget]
+        com.apple.security.application-groups: [$(TeamIdentifierPrefix)com.smudgeface.homewidget]
