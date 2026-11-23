@@ -24,6 +24,8 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
+	<key>LSUIElement</key>
+	<true/>
 	<key>NSHomeKitUsageDescription</key>
 	<string>HomeWidget reads snapshots from your HomeKit cameras to show them in desktop widgets.</string>
 	<key>UIApplicationSceneManifest</key>

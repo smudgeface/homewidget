@@ -7,7 +7,9 @@ A macOS desktop widget that shows a regularly refreshed snapshot from one HomeKi
 - **App** (Mac Catalyst, because HomeKit is not available to native AppKit apps): finds your cameras, requests a still snapshot from each on a timer, and saves it as a JPEG in the shared App Group container.
 - **Widget** (WidgetKit): reads that JPEG. Edit the widget to choose which camera it shows.
 
-Widgets cannot talk to HomeKit or play video themselves, so the app has to be running, with its window open, for the widgets to update. HomeKit only draws snapshots into its own on-screen view, so the app screenshots its own window and crops out each camera.
+Widgets cannot talk to HomeKit or play video themselves, so the app has to be running for the widgets to update. HomeKit only draws snapshots into its own on-screen view, so the app screenshots its own window and crops out each camera.
+
+The app lives in the menu bar (no Dock icon). Once a widget is set up, its window is parked behind the desktop wallpaper whenever the app isn't active: it has to stay on screen for HomeKit to keep answering and for the capture to work, but you never see it. Widgets do not refresh while the display is asleep or the screen is locked.
 
 ## Build
 

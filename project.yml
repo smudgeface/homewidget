@@ -35,6 +35,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         AppGroupID: $(TeamIdentifierPrefix)com.smudgeface.homewidget
         LSApplicationCategoryType: public.app-category.utilities
+        LSUIElement: true   # menu bar app, no Dock icon
         NSHomeKitUsageDescription: HomeWidget reads snapshots from your HomeKit cameras to show them in desktop widgets.
         UILaunchScreen: {}
         UIApplicationSceneManifest:

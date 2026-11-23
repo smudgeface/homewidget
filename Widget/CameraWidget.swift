@@ -65,7 +65,7 @@ struct CameraWidgetView: View {
             if let name = entry.name, entry.image != nil {
                 HStack(spacing: 4) {
                     Text(name).fontWeight(.semibold)
-                    if let taken = entry.taken { Text(taken, style: .time) }
+                    if let taken = entry.taken { Text(taken.formatted(date: .omitted, time: .standard)) }
                 }
                 .font(.caption2)
                 .foregroundStyle(.white)

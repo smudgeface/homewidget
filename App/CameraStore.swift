@@ -27,6 +27,7 @@ final class CameraStore: NSObject, ObservableObject, HMHomeManagerDelegate, HMCa
     /// (the shortest interval wins if several widgets show the same camera).
     @Published private(set) var schedule: [String: RefreshInterval] = [:]
     private var lastRequested: [String: Date] = [:]
+    var hasWidgets: Bool { !schedule.isEmpty }
 
     override init() {
         super.init()
@@ -114,9 +115,11 @@ final class CameraStore: NSObject, ObservableObject, HMHomeManagerDelegate, HMCa
     func cameraSnapshotControl(_ control: HMCameraSnapshotControl,
                                didTake snapshot: HMCameraSnapshot?, error: Error?) {
         guard let id = controls.first(where: { $0.value === control })?.key else { return }
-        log.notice("didTake ok=\(snapshot != nil) error=\(String(describing: error), privacy: .public)")
+        if let error { log.error("snapshot failed: \(String(describing: error), privacy: .public)") }
         guard let snapshot else {
             status = "Snapshot failed: \(error?.localizedDescription ?? "unknown error")"
+            // Cameras occasionally return a bad response; retry in ~15s rather than waiting a full interval.
+            if let interval = schedule[id] { lastRequested[id] = Date().addingTimeInterval(15 - interval.seconds) }
             return
         }
         view(for: id).cameraSource = snapshot
@@ -155,11 +158,11 @@ final class CameraStore: NSObject, ObservableObject, HMHomeManagerDelegate, HMCa
             let content = try await SCShareableContent.currentProcess
             // The process owns several system windows; ours is the normal-level one whose size matches the UIWindow.
             func mismatch(_ w: SCWindow) -> CGFloat { abs(w.frame.width - windowSize.width) + abs(w.frame.height - windowSize.height) }
-            guard let window = content.windows.filter({ $0.windowLayer == 0 }).min(by: { mismatch($0) < mismatch($1) }) else {
+            guard let window = content.windows.filter({ $0.frame.height > 100 && $0.title != "Wallpaper" }).min(by: { mismatch($0) < mismatch($1) }) else {
                 status = "Couldn't find the HomeWidget window to capture."
                 return
             }
-            log.notice("capture: window onScreen=\(window.isOnScreen) active=\(window.isActive) tiles=\(rects.count)")
+            log.notice("capture: \(rects.count) tiles")
             let config = SCStreamConfiguration()
             config.width = Int(window.frame.width * 2)
             config.height = Int(window.frame.height * 2)

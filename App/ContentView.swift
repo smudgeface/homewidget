@@ -27,7 +27,7 @@ struct ContentView: View {
                     }
                 }
             }
-            Text("Leave this window open (it can sit behind other windows). To choose a camera and how often it refreshes, right-click a HomeKit Camera widget and choose Edit.")
+            Text("Once a HomeKit Camera widget is on your desktop, this window hides itself whenever you switch to another app; HomeWidget keeps running in the menu bar, where you can reopen this window or quit. To choose a camera and how often it refreshes, right-click a widget and choose Edit.")
                 .font(.footnote).foregroundStyle(.secondary)
         }
         .padding()
