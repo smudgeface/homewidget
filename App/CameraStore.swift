@@ -172,7 +172,10 @@ final class CameraStore: NSObject, ObservableObject, HMHomeManagerDelegate, HMCa
             let sx = CGFloat(image.width) / windowSize.width
             let sy = CGFloat(image.height) / windowSize.height
             for (id, r) in rects {
-                let crop = CGRect(x: r.minX * sx, y: r.minY * sy, width: r.width * sx, height: r.height * sy).integral
+                // Round inwards and trim a pixel so no window background bleeds in at the edges.
+                let x0 = (r.minX * sx).rounded(.up) + 1, y0 = (r.minY * sy).rounded(.up) + 1
+                let x1 = (r.maxX * sx).rounded(.down) - 1, y1 = (r.maxY * sy).rounded(.down) - 1
+                let crop = CGRect(x: x0, y: y0, width: x1 - x0, height: y1 - y0)
                 guard let cropped = image.cropping(to: crop),
                       let data = UIImage(cgImage: cropped).jpegData(compressionQuality: 0.8),
                       let url = Shared.snapshotURL(for: id) else { continue }

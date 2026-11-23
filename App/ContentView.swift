@@ -17,6 +17,7 @@ struct ContentView: View {
                         VStack(alignment: .leading, spacing: 4) {
                             CameraPreview(view: store.view(for: camera.id))
                                 .aspectRatio(16 / 9, contentMode: .fit)
+                                .background(Color.black)
                             Text(camera.name).font(.headline)
                             Text(store.schedule[camera.id].map { "On a widget · every \($0.label)" } ?? "Not on a widget · not refreshing")
                                 .font(.caption).foregroundStyle(store.schedule[camera.id] == nil ? .secondary : .primary)
