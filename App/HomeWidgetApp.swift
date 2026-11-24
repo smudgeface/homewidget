@@ -8,19 +8,10 @@ struct HomeWidgetApp: App {
         WindowGroup {
             ContentView().environmentObject(store)
                 // Once at least one widget is set up, the window is only needed for capture:
-                // show it while the app is active (e.g. after a Dock click), hide it otherwise.
+                // the helper shows it while the app is active and hides it otherwise.
                 .onAppear {
-                    MenuBar.shared.install()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { WindowHider.ensureOnScreen() }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-                        if store.hasWidgets && !WindowHider.appIsActive { WindowHider.hide() }
-                    }
-                }
-                .onReceive(NotificationCenter.default.publisher(for: WindowHider.didBecomeActive)) { _ in
-                    WindowHider.show()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: WindowHider.didResignActive)) { _ in
-                    if store.hasWidgets { WindowHider.hide() }
+                    MacBridge.support?.start { store.hasWidgets }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 8) { MacBridge.support?.hideIfInactive() }
                 }
         }
     }

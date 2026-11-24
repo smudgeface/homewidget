@@ -21,12 +21,17 @@ targets:
   HomeWidget:
     type: application
     platform: iOS
-    sources: [App, Shared]
+    sources: [App, Shared, Bridge]
     dependencies:
       - target: HomeWidgetExtension
+      - target: MacSupport
+        embed: true
+        copy:
+          destination: plugins
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.smudgeface.homewidget
+        TARGETED_DEVICE_FAMILY: "2,6"   # 6 = native Mac idiom (unscaled UI)
     info:
       path: App/Info.plist
       properties:
@@ -68,3 +73,19 @@ targets:
       properties:
         com.apple.security.app-sandbox: true
         com.apple.security.application-groups: [$(TeamIdentifierPrefix)com.smudgeface.homewidget]
+  MacSupport:        # native AppKit helper loaded by the Catalyst app (menu bar, window hiding)
+    type: bundle
+    platform: macOS
+    deploymentTarget: "15.2"
+    sources: [MacSupport, Bridge]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.smudgeface.homewidget.macsupport
+        SUPPORTS_MACCATALYST: NO
+        SDKROOT: macosx
+    info:
+      path: MacSupport/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSPrincipalClass: MacSupport
