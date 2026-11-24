@@ -86,6 +86,7 @@ final class MacSupport: NSObject, MacSupportProtocol {
         let login = menu.addItem(withTitle: "Open at Login", action: #selector(toggleLogin), keyEquivalent: "")
         login.target = self
         loginItem = login
+        menu.addItem(withTitle: "Buy Me a Coffee…", action: #selector(openDonate), keyEquivalent: "").target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit HomeWidget", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         item.menu = menu
@@ -96,6 +97,10 @@ final class MacSupport: NSObject, MacSupportProtocol {
     @objc private func activateAndShow() {
         NSApp.activate(ignoringOtherApps: true)
         showWindow()
+    }
+
+    @objc private func openDonate() {
+        NSWorkspace.shared.open(URL(string: "https://buymeacoffee.com/smudgeface")!)
     }
 
     @objc private func toggleLogin() {

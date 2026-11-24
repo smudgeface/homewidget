@@ -30,6 +30,11 @@ struct ContentView: View {
             }
             Text("Once a HomeKit Camera widget is on your desktop, this window hides itself whenever you switch to another app; HomeWidget keeps running in the menu bar, where you can reopen this window or quit. To choose a camera and how often it refreshes, right-click a widget and choose Edit.")
                 .font(.footnote).foregroundStyle(.secondary)
+            HStack(spacing: 4) {
+                Text("HomeWidget is free while it's in testing. If it's useful to you, you can")
+                Link("buy me a coffee.", destination: URL(string: "https://buymeacoffee.com/smudgeface")!)
+            }
+            .font(.footnote).foregroundStyle(.secondary)
         }
         .padding()
     }
